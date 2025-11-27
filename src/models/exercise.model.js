@@ -22,7 +22,7 @@ class Exercise {
       throw { status: 400, message: "Invalid date format" };
     }
 
-    const formattedDate = curDate.toDateString();
+    const formattedDate = curDate.toISOString().split("T")[0];
 
     const result = await db.run(
       `INSERT INTO Exercise (userId, description, duration, date)
@@ -46,7 +46,7 @@ class Exercise {
       SELECT description, duration, date
       FROM Exercise
       WHERE userId = ?
-      ORDER BY date ASC
+      ORDER BY date(date) ASC
     `;
   
     const params = [userId];
@@ -61,7 +61,7 @@ class Exercise {
     return rows.map(r => ({
       description: r.description,
       duration: r.duration,
-      date: r.date,
+      date: new Date(r.date).toDateString(),
     }));
   }
 }

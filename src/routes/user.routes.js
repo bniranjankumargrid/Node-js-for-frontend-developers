@@ -91,7 +91,7 @@ router.post("/:_id/exercises", async (req, res) => {
       username: user.username,
       description: exercise.description,
       duration: exercise.duration,
-      date: exercise.date,
+      date: new Date(exercise.date).toDateString(),
     });
   } catch (e) {
     return res.status(400).json({ error: e.message });
