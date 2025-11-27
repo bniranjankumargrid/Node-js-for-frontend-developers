@@ -39,19 +39,29 @@ class Exercise {
     });
   }
 
-  static async findByUserId(userId) {
+  static async findByUserId(userId, limit, applyLimit = true) {
     const db = await getDb();
-    const rows = await db.all(
-      `SELECT description, duration, date
-       FROM Exercise
-       WHERE userId = ?`,
-      [userId]
-    );
+  
+    let sql = `
+      SELECT description, duration, date
+      FROM Exercise
+      WHERE userId = ?
+      ORDER BY date ASC
+    `;
+  
+    const params = [userId];
+  
+    if (applyLimit && limit && Number(limit) > 0) {
+      sql += " LIMIT ?";
+      params.push(Number(limit));
+    }
+  
+    const rows = await db.all(sql, params);
   
     return rows.map(r => ({
       description: r.description,
       duration: r.duration,
-      date: r.date
+      date: r.date,
     }));
   }
 }

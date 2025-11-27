@@ -8,6 +8,8 @@ class User {
 
   static async create({ username }) {
     const db = await getDb();
+    
+    username = username.trim();
 
     if (!username || username.trim() === "") {
       throw new Error("Username is required");
