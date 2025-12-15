@@ -12,41 +12,21 @@ router.get("/:_id/logs", async (req, res) => {
     const user = await User.findById(_id);
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    const hasDateFilter = Boolean(from || to);
+    const logs = await Exercise.findByUserId({
+      userId: _id,
+      from,
+      to,
+      limit
+    });
 
-    let logs = await Exercise.findByUserId(_id, limit, !hasDateFilter);
-
-    if (from) {
-      const fromDate = new Date(from);
-      logs = logs.filter(log => new Date(log.date) >= fromDate);
-    }
-
-    if (to) {
-      const toDate = new Date(to);
-      logs = logs.filter(log => new Date(log.date) <= toDate);
-    }
-
-    const totalCount = logs.length;
-
-    let responseLogs = logs;
-    if (!isNaN(limit) && Number(limit) > 0) {
-      responseLogs = logs.slice(0, Number(limit));
-    }
-
-    const response = {
+    res.json({
       username: user.username,
       _id: user._id,
-      count: totalCount, 
-      log: responseLogs.map(entry => ({
-        description: entry.description,
-        duration: entry.duration,
-        date: entry.date,
-      })),
-    };
-
-    res.json(response);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+      count: logs.length,
+      log: logs
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
