@@ -43,7 +43,6 @@ class Exercise {
     const db = await getDb();
   
     let sql = `
-      SELECT description, duration, date
       FROM Exercise
       WHERE userId = ?
     `;
@@ -59,21 +58,29 @@ class Exercise {
       params.push(to);
     }
   
-    sql += " ORDER BY date ASC";
+    const countSql = `SELECT COUNT(*) AS total ${sql}`;
+    const countResult = await db.get(countSql, params);
+    const totalCount = countResult.total;
   
+    let dataSql = `SELECT description, duration, date ${sql} ORDER BY date ASC`;
     if (!isNaN(limit) && Number(limit) > 0) {
-      sql += " LIMIT ?";
+      dataSql += " LIMIT ?";
       params.push(Number(limit));
     }
   
-    let rows = await db.all(sql, params);
-
+    let rows = await db.all(dataSql, params);
+  
     rows = rows.map(data => ({
       ...data,
       date: new Date(data.date).toDateString()
     }));
-    return rows;
+  
+    return {
+      data: rows,
+      count: totalCount
+    };
   }
+  
 }
 
 module.exports = Exercise;

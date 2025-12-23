@@ -22,8 +22,8 @@ router.get("/:_id/logs", async (req, res) => {
     res.json({
       username: user.username,
       _id: user._id,
-      count: logs.length,
-      log: logs
+      count: logs.count,
+      log: logs.data
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
