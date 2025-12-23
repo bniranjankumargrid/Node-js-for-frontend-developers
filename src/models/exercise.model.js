@@ -66,7 +66,12 @@ class Exercise {
       params.push(Number(limit));
     }
   
-    const rows = await db.all(sql, params);
+    let rows = await db.all(sql, params);
+
+    rows = rows.map(data => ({
+      ...data,
+      date: new Date(data.date).toDateString()
+    }));
     return rows;
   }
 }
